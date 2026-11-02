@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Cek ketersediaan library diagram Venn agar tidak memicu ImportError fatal
+# Cek library diagram Venn
 try:
     from matplotlib_venn import venn2, venn2_circles
     HAS_VENN = True
@@ -17,21 +17,36 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Styling Apple Human Interface System
+# 2. Apple Design System CSS (Anti-Dark Mode & Bebas Lag CDN)
 st.markdown("""
 <style>
-    @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+    /* 1. Paksa Reset Variabel Global Streamlit Dark Mode */
+    :root, [data-theme="dark"], [data-theme="light"], .stApp {
+        --text-color: #1d1d1f !important;
+        --background-color: #f5f5f7 !important;
+        --secondary-background-color: #ffffff !important;
+        background-color: #f5f5f7 !important;
+        color: #1d1d1f !important;
+    }
 
-    html, body, [class*="css"] {
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif !important;
-        color: #1d1d1f;
+    /* 2. Gunakan Native Font Apple (Instan, 0ms Delay) */
+    * {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         letter-spacing: -0.015em;
     }
 
-    .stApp {
-        background-color: #f5f5f7;
+    /* 3. Paksa SEMUA Teks, Heading, Label, dan Paragraf Menjadi Gelap */
+    .stApp, 
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
+    .stApp p, .stApp span, .stApp label, .stApp div,
+    [data-testid="stMarkdownContainer"] *,
+    [data-testid="stWidgetLabel"] *,
+    [data-testid="stRadio"] *,
+    section[data-testid="stSidebar"] * {
+        color: #1d1d1f !important;
     }
 
+    /* 4. Sembunyikan Header Bawaan Streamlit */
     header, footer {
         visibility: hidden;
         height: 0px;
@@ -43,134 +58,87 @@ st.markdown("""
         padding-bottom: 4rem;
     }
 
-    /* Sidebar Styling */
+    /* 5. Sidebar macOS Style */
     section[data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid rgba(0, 0, 0, 0.08);
+        background-color: #ffffff !important;
+        border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
         padding-top: 1.5rem;
     }
 
-    section[data-testid="stSidebar"] h2, 
-    section[data-testid="stSidebar"] h3 {
-        color: #1d1d1f;
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.01em;
-        margin-top: 1.2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    /* Kartu Konten Bersih */
+    /* 6. Kartu Apple (Apple Card) */
     .apple-card {
-        background-color: #ffffff;
-        border-radius: 16px;
-        border: 1px solid rgba(0, 0, 0, 0.07);
-        padding: 24px 28px;
-        margin-bottom: 22px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.02);
+        background-color: #ffffff !important;
+        border-radius: 16px !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        padding: 24px 28px !important;
+        margin-bottom: 22px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
     }
 
-    .apple-label {
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #86868b;
-        margin-bottom: 6px;
+    .apple-card * {
+        color: #1d1d1f !important;
     }
 
-    .apple-title {
-        font-size: 32px;
-        font-weight: 700;
-        letter-spacing: -0.025em;
-        line-height: 1.2;
-        color: #1d1d1f;
-        margin-bottom: 4px;
-    }
-
-    .apple-subtitle {
-        font-size: 14px;
-        color: #86868b;
-        margin-bottom: 18px;
-    }
-
-    .apple-banner {
-        background-color: #ffffff;
-        border-left: 4px solid #0071e3;
-        border-radius: 8px;
-        padding: 12px 18px;
-        font-size: 14px;
-        color: #1d1d1f;
-        margin-bottom: 22px;
-        border-top: 1px solid rgba(0, 0, 0, 0.04);
-        border-right: 1px solid rgba(0, 0, 0, 0.04);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-    }
-
-    /* Tag Elemen Himpunan Matematika */
+    /* Tag Elemen Himpunan */
     .math-chip {
         display: inline-block;
-        background-color: #f5f5f7;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 6px;
-        padding: 2px 8px;
-        font-size: 12px;
-        font-weight: 500;
-        color: #1d1d1f;
-        margin: 2px 3px;
-        font-family: -apple-system, monospace !important;
+        background-color: #f5f5f7 !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        border-radius: 6px !important;
+        padding: 2px 8px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: #1d1d1f !important;
+        margin: 2px 3px !important;
     }
 
     .metric-tile {
-        background-color: #fbfbfd;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        border-radius: 12px;
-        padding: 14px 18px;
-        margin-bottom: 10px;
-    }
-
-    .metric-num {
-        font-size: 26px;
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        color: #1d1d1f;
-    }
-
-    /* Form Inputs */
-    .stSelectbox > div > div, 
-    .stTextArea textarea, 
-    .stTextInput input {
         background-color: #fbfbfd !important;
-        border-radius: 10px !important;
-        border: 1px solid rgba(0, 0, 0, 0.12) !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-radius: 12px !important;
+        padding: 14px 18px !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* 7. Input Form & Selectbox */
+    input, textarea, select, [data-baseweb="select"] > div {
+        background-color: #fbfbfd !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
         color: #1d1d1f !important;
-        font-size: 13.5px !important;
+        border-radius: 10px !important;
     }
 
-    .stSelectbox > div > div:focus-within, 
-    .stTextArea textarea:focus {
-        border-color: #0071e3 !important;
-        box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15) !important;
+    /* 8. Tombol Primer Apple (Tetap Teks Putih) */
+    .stButton > button, .stButton > button * {
+        background-color: #0071e3 !important;
+        color: #ffffff !important;
+        border-radius: 980px !important;
+        border: none !important;
     }
 
-    [data-testid="stDataFrame"] {
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid rgba(0, 0, 0, 0.06);
+    /* Utility Warna Teks */
+    .text-muted {
+        color: #86868b !important;
+    }
+    .text-accent {
+        color: #0071e3 !important;
+    }
+    .text-success {
+        color: #34c759 !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Helper untuk merender tag anggota himpunan
+# Helper tag himpunan
 def render_chips(elements):
     if not elements:
-        return '<span style="color: #86868b; font-style: italic; font-size: 13px;">∅ (Himpunan Kosong)</span>'
+        return '<span class="text-muted" style="font-style: italic; font-size: 13px;">∅ (Himpunan Kosong)</span>'
     chips = "".join([f'<span class="math-chip">{item}</span>' for item in sorted(list(elements))])
     return f'<div style="margin-top: 4px; line-height: 1.8;">{chips}</div>'
 
 # 3. Sidebar: Sumber Dataset & Pengaturan Himpunan
 with st.sidebar:
-    st.markdown('<p class="apple-label">Pengaturan Data</p>', unsafe_allow_html=True)
+    st.markdown('<p class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">PENGATURAN DATA</p>', unsafe_allow_html=True)
     st.markdown("### 1. Sumber Dataset")
     
     pilihan_dataset = st.radio(
@@ -246,21 +214,21 @@ comp_B = U - B
 # 5. Tampilan Utama
 st.markdown("""
     <div>
-        <p class="apple-label">Laboratorium Komputasi & Diskrit</p>
-        <h1 class="apple-title">Sistem Klasifikasi Data Berbasis Himpunan</h1>
-        <p class="apple-subtitle">Proyek Mini #2 | Union, Intersection, Difference, Complement, Diagram Venn, dan Prinsip Inklusi-Eksklusi</p>
+        <p class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">LABORATORIUM KOMPUTASI & DISKRIT</p>
+        <h1 style="font-size: 32px; font-weight: 700; letter-spacing: -0.025em; margin-bottom: 4px;">Sistem Klasifikasi Data Berbasis Himpunan</h1>
+        <p class="text-muted" style="font-size: 14px; margin-bottom: 18px;">Proyek Mini #2 | Union, Intersection, Difference, Complement, Diagram Venn, dan Prinsip Inklusi-Eksklusi</p>
     </div>
 """, unsafe_allow_html=True)
 
 st.markdown(f"""
-    <div class="apple-banner">
+    <div style="background-color: #ffffff; border-left: 4px solid #0071e3; border-radius: 8px; padding: 12px 18px; margin-bottom: 22px; border-top: 1px solid rgba(0,0,0,0.05); border-right: 1px solid rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.05);">
         Mengelompokkan mahasiswa berdasarkan minat atau keterlibatan pada <strong>{kat_a}</strong> dan <strong>{kat_b}</strong>.
     </div>
 """, unsafe_allow_html=True)
 
 # BAGIAN A: DATASET YANG DIGUNAKAN
 st.markdown('<div class="apple-card">', unsafe_allow_html=True)
-st.markdown('<p class="apple-label">Tinjauan Data</p>', unsafe_allow_html=True)
+st.markdown('<p class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">TINJAUAN DATA</p>', unsafe_allow_html=True)
 st.markdown("### A. Dataset yang Digunakan")
 
 col_table, col_summary = st.columns([1.6, 1])
@@ -269,21 +237,21 @@ with col_table:
 with col_summary:
     st.markdown(f"""
         <div class="metric-tile">
-            <div class="apple-label">Total Baris Data</div>
-            <div class="metric-num">{len(df)}</div>
-            <p style="color: #86868b; font-size: 12px; margin-top: 2px;">Entri tercatat pada dataset</p>
+            <div class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Total Baris Data</div>
+            <div style="font-size: 26px; font-weight: 700; margin-top: 2px;">{len(df)}</div>
+            <p class="text-muted" style="font-size: 12px; margin-top: 2px;">Entri tercatat pada dataset</p>
         </div>
         <div class="metric-tile">
-            <div class="apple-label">Total Semesta |U|</div>
-            <div class="metric-num">{len(U)}</div>
-            <p style="color: #86868b; font-size: 12px; margin-top: 2px;">Individu unik dalam cakupan</p>
+            <div class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Total Semesta |U|</div>
+            <div style="font-size: 26px; font-weight: 700; margin-top: 2px;">{len(U)}</div>
+            <p class="text-muted" style="font-size: 12px; margin-top: 2px;">Individu unik dalam cakupan</p>
         </div>
     """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # BAGIAN B: PEMODELAN HIMPUNAN
 st.markdown('<div class="apple-card">', unsafe_allow_html=True)
-st.markdown('<p class="apple-label">Pemodelan Formal</p>', unsafe_allow_html=True)
+st.markdown('<p class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">PEMODELAN FORMAL</p>', unsafe_allow_html=True)
 st.markdown("### B. Pemodelan Himpunan")
 
 col_ha, col_hb, col_hu = st.columns(3)
@@ -291,9 +259,9 @@ col_ha, col_hb, col_hu = st.columns(3)
 with col_ha:
     st.markdown(f"""
         <div class="metric-tile">
-            <div class="apple-label">Himpunan A ({kat_a})</div>
+            <div class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Himpunan A ({kat_a})</div>
             {render_chips(A)}
-            <div style="font-size: 12.5px; color: #1d1d1f; margin-top: 8px; font-weight: 600;">
+            <div style="font-size: 12.5px; margin-top: 8px; font-weight: 600;">
                 Kardinalitas |A| = {len(A)}
             </div>
         </div>
@@ -302,9 +270,9 @@ with col_ha:
 with col_hb:
     st.markdown(f"""
         <div class="metric-tile">
-            <div class="apple-label">Himpunan B ({kat_b})</div>
+            <div class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Himpunan B ({kat_b})</div>
             {render_chips(B)}
-            <div style="font-size: 12.5px; color: #1d1d1f; margin-top: 8px; font-weight: 600;">
+            <div style="font-size: 12.5px; margin-top: 8px; font-weight: 600;">
                 Kardinalitas |B| = {len(B)}
             </div>
         </div>
@@ -313,9 +281,9 @@ with col_hb:
 with col_hu:
     st.markdown(f"""
         <div class="metric-tile">
-            <div class="apple-label">Semesta (U)</div>
+            <div class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Semesta (U)</div>
             {render_chips(U)}
-            <div style="font-size: 12.5px; color: #1d1d1f; margin-top: 8px; font-weight: 600;">
+            <div style="font-size: 12.5px; margin-top: 8px; font-weight: 600;">
                 Kardinalitas |U| = {len(U)}
             </div>
         </div>
@@ -327,24 +295,24 @@ col_ops, col_venn = st.columns([1.25, 1])
 
 with col_ops:
     st.markdown('<div class="apple-card">', unsafe_allow_html=True)
-    st.markdown('<p class="apple-label">Aljabar Himpunan</p>', unsafe_allow_html=True)
+    st.markdown('<p class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">ALJABAR HIMPUNAN</p>', unsafe_allow_html=True)
     st.markdown("### C. Operasi Himpunan")
 
     operations = [
-        (f"Gabungan (Union): A ∪ B", union_set),
-        (f"Irisan (Intersection): A ∩ B", inter_set),
-        (f"Selisih (Difference): A − B", diff_A_B),
-        (f"Selisih (Difference): B − A", diff_B_A),
+        ("Gabungan (Union): A ∪ B", union_set),
+        ("Irisan (Intersection): A ∩ B", inter_set),
+        ("Selisih (Difference): A − B", diff_A_B),
+        ("Selisih (Difference): B − A", diff_B_A),
         ("Komplemen: Aᶜ (U − A)", comp_A),
         ("Komplemen: Bᶜ (U − B)", comp_B)
     ]
 
     for title, s_data in operations:
         st.markdown(f"""
-            <div style="padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <div style="padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.06);">
                 <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                    <span style="font-size: 13.5px; font-weight: 600; color: #1d1d1f;">{title}</span>
-                    <span style="font-size: 12px; font-weight: 600; color: #0071e3;">Jumlah: {len(s_data)}</span>
+                    <span style="font-size: 13.5px; font-weight: 600;">{title}</span>
+                    <span class="text-accent" style="font-size: 12px; font-weight: 600;">Jumlah: {len(s_data)}</span>
                 </div>
                 {render_chips(s_data)}
             </div>
@@ -353,11 +321,11 @@ with col_ops:
 
 with col_venn:
     st.markdown('<div class="apple-card">', unsafe_allow_html=True)
-    st.markdown('<p class="apple-label">Visualisasi Spasial</p>', unsafe_allow_html=True)
+    st.markdown('<p class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">VISUALISASI SPASIAL</p>', unsafe_allow_html=True)
     st.markdown("### D. Diagram Venn")
 
     if HAS_VENN:
-        fig, ax = plt.subplots(figsize=(4.8, 3.8), dpi=300)
+        fig, ax = plt.subplots(figsize=(4.5, 3.5), dpi=180)
         fig.patch.set_facecolor('#ffffff')
         ax.set_facecolor('#ffffff')
 
@@ -366,7 +334,7 @@ with col_venn:
             subsets=subsets_val,
             set_labels=(kat_a, kat_b),
             set_colors=('#0071e3', '#34c759'),
-            alpha=0.42,
+            alpha=0.45,
             ax=ax
         )
         venn2_circles(subsets=subsets_val, linewidth=1.2, color='#1d1d1f', ax=ax)
@@ -385,12 +353,12 @@ with col_venn:
         plt.tight_layout()
         st.pyplot(fig)
     else:
-        st.info("Pustaka diagram belum terpasang. Jalankan: `pip install matplotlib-venn` di terminal.")
+        st.info("Tambahkan `matplotlib-venn` di requirements.txt untuk melihat visualisasi grafik.")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # BAGIAN E: PRINSIP INKLUSI-EKSKLUSI
 st.markdown('<div class="apple-card">', unsafe_allow_html=True)
-st.markdown('<p class="apple-label">Verifikasi Teorema</p>', unsafe_allow_html=True)
+st.markdown('<p class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;">VERIFIKASI TEOREMA</p>', unsafe_allow_html=True)
 st.markdown("### E. Perhitungan Prinsip Inklusi-Eksklusi")
 
 card_a = len(A)
@@ -412,15 +380,15 @@ with col_pie_formula:
 
 with col_pie_calc:
     st.markdown(f"""
-        <div class="metric-tile" style="border-left: 4px solid #0071e3;">
-            <div class="apple-label">Substitusi & Evaluasi</div>
-            <div style="font-size: 16px; font-weight: 600; color: #1d1d1f; margin-top: 4px;">
+        <div class="metric-tile" style="border-left: 4px solid #0071e3 !important;">
+            <div class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Substitusi & Evaluasi</div>
+            <div style="font-size: 16px; font-weight: 600; margin-top: 4px;">
                 |A ∪ B| = {card_a} + {card_b} - {card_inter} = <strong>{pie_val}</strong>
             </div>
-            <div style="font-size: 12.5px; color: #34c759; margin-top: 6px; font-weight: 600;">
+            <div class="text-success" style="font-size: 12.5px; margin-top: 6px; font-weight: 600;">
                 ✓ Terverifikasi: Tepat sesuai dengan jumlah gabungan unik ({actual_val}).
             </div>
-            <div style="font-size: 11.5px; color: #86868b; margin-top: 2px;">
+            <div class="text-muted" style="font-size: 11.5px; margin-top: 2px;">
                 Elemen irisan tidak dihitung ganda.
             </div>
         </div>
