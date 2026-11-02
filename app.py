@@ -2,14 +2,14 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Cek ketersediaan modul matplotlib-venn
+# Cek ketersediaan modul diagram Venn
 try:
     from matplotlib_venn import venn2, venn2_circles
     HAS_VENN = True
 except ImportError:
     HAS_VENN = False
 
-# 1. Konfigurasi Halaman (Kunci Sidebar Terbuka Secara Default)
+# 1. Konfigurasi Halaman (Sidebar Dipaksa Terbuka)
 st.set_page_config(
     page_title="Sistem Klasifikasi Data Berbasis Himpunan",
     page_icon="∏",
@@ -17,42 +17,41 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. CSS Aman: Tombol Menu Tetap Terlihat & Tampilan Bersih
+# 2. CSS Aman (Hanya Styling Konten & Kartu, Sama Sekali Tidak Menyentuh Header/Sidebar)
 st.markdown("""
 <style>
-    /* 1. JANGAN sembunyikan header agar tombol panah menu sidebar selalu ada */
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
-    }
-    
-    /* Hanya sembunyikan tombol deploy dan menu titik tiga bawaan Streamlit */
-    .stDeployButton, [data-testid="stToolbar"] {
-        display: none !important;
-    }
-
-    /* Pastikan tombol pembuka sidebar (tombol panah di kiri atas) selalu terlihat jelas */
-    [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"] button {
-        display: flex !important;
-        visibility: visible !important;
-        color: #1d1d1f !important;
-        background-color: #ffffff !important;
-        border: 1px solid rgba(0, 0, 0, 0.12) !important;
-        border-radius: 8px !important;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
-    }
-
-    /* 2. Styling Wadah Kartu Bawaan Streamlit (Bebas Glitch Div Kosong) */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #ffffff !important;
+    /* Styling Elemen Kartu Apple */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #ffffff;
         border-radius: 14px !important;
         border: 1px solid rgba(0, 0, 0, 0.08) !important;
-        padding: 6px !important;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
-        margin-bottom: 1rem !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        margin-bottom: 1rem;
     }
 
-    /* 3. Tipografi & Warna Label */
+    /* Tag Elemen Himpunan Matematika */
+    .math-chip {
+        display: inline-block;
+        background-color: #f5f5f7;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        padding: 3px 9px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin: 2px 3px;
+        font-family: ui-monospace, Menlo, Monaco, monospace;
+    }
+
+    /* Kotak Metrik Ringkas */
+    .metric-card {
+        background-color: #fbfbfd;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 8px;
+    }
+    
     .apple-label {
         font-size: 11px;
         font-weight: 600;
@@ -61,39 +60,17 @@ st.markdown("""
         color: #86868b;
         margin-bottom: 4px;
     }
-
-    /* 4. Tag Badge Himpunan */
-    .math-chip {
-        display: inline-block;
-        background-color: #f5f5f7;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 6px;
-        padding: 2px 8px;
-        font-size: 12.5px;
-        font-weight: 600;
-        color: #1d1d1f;
-        margin: 2px 3px;
-        font-family: monospace;
-    }
-
-    .metric-card {
-        background-color: #fbfbfd;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        border-radius: 10px;
-        padding: 12px 16px;
-        margin-bottom: 8px;
-    }
 </style>
 """, unsafe_allow_html=True)
 
-# Helper untuk merender elemen himpunan
+# Helper untuk merender tag anggota himpunan
 def render_chips(elements):
     if not elements:
         return '<span style="color: #86868b; font-style: italic; font-size: 13px;">∅ (Himpunan Kosong)</span>'
     chips = "".join([f'<span class="math-chip">{item}</span>' for item in sorted(list(elements))])
     return f'<div style="margin-top: 4px; line-height: 1.8;">{chips}</div>'
 
-# 3. Sidebar Kontrol Data
+# 3. Sidebar: Sumber Dataset & Pengaturan Himpunan
 with st.sidebar:
     st.markdown('<p class="apple-label">Konfigurasi Data</p>', unsafe_allow_html=True)
     st.markdown("### 1. Sumber Dataset")
@@ -147,7 +124,7 @@ with st.sidebar:
         help="Pisahkan anggota dengan koma atau baris baru."
     )
 
-# 4. Parsing Logika Teori Himpunan
+# 4. Parsing Logika Matematika
 raw_semesta = [x.strip() for x in semesta_input.replace(",", "\n").replace(";", "\n").split("\n") if x.strip()]
 U = set(raw_semesta)
 
@@ -157,7 +134,7 @@ if not df.empty:
 else:
     A, B = set(), set()
 
-# Semesta selalu mencakup seluruh anggota A dan B
+# Menjamin semesta mencakup semua anggota
 U = U | A | B
 
 union_set = A | B
@@ -167,7 +144,7 @@ diff_B_A = B - A
 comp_A = U - A
 comp_B = U - B
 
-# 5. Konten Utama
+# 5. Tampilan Utama
 st.markdown('<p class="apple-label">Laboratorium Komputasi & Diskrit</p>', unsafe_allow_html=True)
 st.title("Sistem Klasifikasi Data Berbasis Himpunan")
 st.caption("Proyek Mini #2 | Union, Intersection, Difference, Complement, Diagram Venn, dan Prinsip Inklusi-Eksklusi")
@@ -207,7 +184,7 @@ with st.container(border=True):
             <div class="metric-card">
                 <div class="apple-label">Himpunan A ({kat_a})</div>
                 {render_chips(A)}
-                <div style="font-size: 12.5px; font-weight: 600; color: #1d1d1f; margin-top: 8px;">Kardinalitas |A| = {len(A)}</div>
+                <div style="font-size: 13px; font-weight: 600; color: #1d1d1f; margin-top: 8px;">Kardinalitas |A| = {len(A)}</div>
             </div>
         """, unsafe_allow_html=True)
     with cb2:
@@ -215,7 +192,7 @@ with st.container(border=True):
             <div class="metric-card">
                 <div class="apple-label">Himpunan B ({kat_b})</div>
                 {render_chips(B)}
-                <div style="font-size: 12.5px; font-weight: 600; color: #1d1d1f; margin-top: 8px;">Kardinalitas |B| = {len(B)}</div>
+                <div style="font-size: 13px; font-weight: 600; color: #1d1d1f; margin-top: 8px;">Kardinalitas |B| = {len(B)}</div>
             </div>
         """, unsafe_allow_html=True)
     with cb3:
@@ -223,7 +200,7 @@ with st.container(border=True):
             <div class="metric-card">
                 <div class="apple-label">Semesta (U)</div>
                 {render_chips(U)}
-                <div style="font-size: 12.5px; font-weight: 600; color: #1d1d1f; margin-top: 8px;">Kardinalitas |U| = {len(U)}</div>
+                <div style="font-size: 13px; font-weight: 600; color: #1d1d1f; margin-top: 8px;">Kardinalitas |U| = {len(U)}</div>
             </div>
         """, unsafe_allow_html=True)
 
